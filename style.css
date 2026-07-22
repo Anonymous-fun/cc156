@@ -110,6 +110,16 @@ body.no-scroll{
     transition: 0.3s;
     user-select: none;
     -webkit-user-select: none;
+    display:flex;
+    align-items: center;
+    justify-content: center;
+}
+.container .wrap .showBtn .dot{
+    background: rgb(222, 0, 0);
+    color: #fff;
+    padding: 5px;
+    margin-left: 12px;
+    border-radius: 10px;
 }
 .container .wrap .showBtn:hover{
     background: #c0c0c0;
