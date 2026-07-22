@@ -19,6 +19,7 @@ body.no-scroll{
     right: 0;
     bottom: 0;
     display: flex;
+    opacity:0;
     align-items: center;
     justify-content: center;
     background: #fff;
