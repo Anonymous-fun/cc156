@@ -117,9 +117,10 @@ body.no-scroll{
 .container .wrap .showBtn .dot{
     background: rgb(222, 0, 0);
     color: #fff;
-    padding: 5px;
+    padding:3px 5px;
     margin-left: 12px;
     border-radius: 10px;
+    font-weight:bold;
 }
 .container .wrap .showBtn:hover{
     background: #c0c0c0;
