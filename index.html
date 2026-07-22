@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fun Project</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <meta charset="UTF-8">
+</head>
+<body>
+
+    <div class="refresh-btn" onclick="refreshPage();">
+        <i class="fa fa-refresh" aria-hidden="true"></i>
+    </div>
+
+    <div class="loader">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="top-header">
+        <div class="text-1">
+            CC-156 Section A
+        </div>
+        <div class="text-2">
+            Send anonymous comments about friends and have fun!
+        </div>
+    </div>
+
+    <div class="container">
+
+    </div>
+
+    <div class="comments-modal">
+        <div class="head">
+            <div class="backBtn" onclick="closeComments();">
+                <i class="fa fa-arrow-left" aria-hidden="true"></i>
+            </div>
+            <div class="name"></div>
+        </div>
+        <div class="comments"></div>
+        <div class="comment-input">
+            <div data-placeholder="Write your comment..." oninput="checkInput(this.innerText);" class="msg" contenteditable="true" placeholder="Write your message..."></div>
+            <div class="send-btn disabled">
+                <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+
+<script>
+
+    const API = 'https://script.google.com/macros/s/AKfycbyC9xtclncAczZuyi-95pc75K_qdaaulBnz_xKUMErr5vkSEIu3HpqyKSoLyhqok_4tsg/exec';
+
+    async function setUi(){
+        const form = new FormData();
+        form.append("action", "getData");
+
+        const response = await fetch(API, {
+            method: "POST",
+            body: form
+        });
+
+        const data = await response.json();
+
+        if(data.success) {
+            renderUi(data.data);
+            hideLoader();
+        } 
+        else {
+            alert('Something went wrong!');
+        }
+    }
+
+    let database;
+    function renderUi(data){
+        database = JSON.parse(data);
+        const container = document.querySelector('.container');
+        container.innerHTML = ''
+        var html = '';
+        for(var i = 0; i<database.length; i++){
+            const comments = JSON.parse(database[i].comments);
+            html += `<div class="wrap">
+                        <div class="head">
+                            <div class="roll">${10000+1+i}</div>
+                            <div class="name">${database[i].name}</div>
+                        </div>
+                        <div class="showBtn" onclick="showComments(${i});">Show Comments (${comments.length})</div>
+                    </div>`;
+        }
+        container.innerHTML = html;
+    }
+
+
+    setUi();
+
+    var modal = false;
+    function showComments(r){
+        const comments = JSON.parse(database[r].comments);
+        document.body.classList.add('no-scroll');
+        document.querySelector('.comments-modal .comments').innerHTML = '';
+        document.querySelector('.comments-modal .head .name').innerText = database[r].name;
+        document.querySelector('.comments-modal').className = 'comments-modal active';
+        for(var i=comments.length-1; i>=0; i--){
+            document.querySelector('.comments-modal .comments').innerHTML+= `<div class="comment">${comments[i].replaceAll('\n', '<br>')}</div>`;
+        }
+        document.querySelector('.comments-modal .send-btn').className = 'send-btn disabled';
+        document.querySelector('.comments-modal .send-btn').onclick = function(){
+            sendComment(r);
+        }
+        document.querySelector('.comments-modal .msg').innerText = '';
+        history.pushState({page: 'modal'}, "", "");
+        modal = true
+    }
+    function closeComments(){
+        document.querySelector('.comments-modal').className = 'comments-modal';
+        document.body.classList.remove('no-scroll');
+        modal = false;
+    }
+
+    window.addEventListener("popstate", function (event) {
+        if(modal){
+            closeComments();
+        }
+        else{
+            window.history.back();
+        }
+    });
+
+
+    async function sendComment(i){
+        document.querySelector('.comments-modal .send-btn').className = 'send-btn loading';
+        var msg = document.querySelector('.comments-modal .msg').innerText;
+
+        const form = new FormData();
+        form.append("action", "comment");
+        form.append("index", i);
+        form.append("msg", msg);
+
+        const response = await fetch(API, {
+            method: "POST",
+            body: form
+        });
+
+        const data = await response.json();
+
+        if(data.success) {
+            document.querySelector('.comments-modal .send-btn').className = 'send-btn';
+            refreshPage();
+        } 
+        else {
+            alert('Something went wrong!');
+            document.querySelector('.comments-modal .send-btn').className = 'send-btn';
+        }
+    }
+
+    function checkInput(msg){
+        if(msg.trim()!=''){
+            document.querySelector('.comments-modal .send-btn').className = 'send-btn';
+        }
+        else{
+            document.querySelector('.comments-modal .send-btn').className = 'send-btn disabled';
+        }
+    }
+
+    function refreshPage(){
+        showLoader();
+        closeComments();
+        setUi();
+    }
+
+    function showLoader(){
+        document.querySelector('.loader').style.opacity=1;
+        document.querySelector('.loader').style.pointerEvents='all';
+    }
+    function hideLoader(){
+        document.querySelector('.loader').style.opacity=0;
+        document.querySelector('.loader').style.pointerEvents='none';
+    }
+</script>    
+    
+</body>
+</html>
