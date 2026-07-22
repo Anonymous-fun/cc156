@@ -85,7 +85,7 @@
                             <div class="roll">${10000+1+i}</div>
                             <div class="name">${database[i].name}</div>
                         </div>
-                        <div class="showBtn" onclick="showComments(${i});">Show Comments (${comments.length})</div>
+                        <div class="showBtn" onclick="showComments(${i});">Show Comments <div class="dot">${comments.length}</div></div>
                     </div>`;
         }
         container.innerHTML = html;
